@@ -1,0 +1,42 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@default/*": ["apps/RMSDevJournal/src/app/*"],
+      "@env/*": ["apps/RMSDevJournal/src/environments/*"],
+      "@infordevjournal/*": ["libs/*"],
+      "@infordevjournal/articles/article": ["libs/articles/feature-article/src/index.ts"],
+      "@infordevjournal/articles/article-edit": ["libs/articles/feature-article-edit/src/index.ts"],
+      "@infordevjournal/articles/articles-list": ["libs/articles/feature-articles-list/src/index.ts"],
+      "@infordevjournal/articles/data-access": ["libs/articles/data-access/src/index.ts"],
+      "@infordevjournal/auth/data-access": ["libs/auth/data-access/src/index.ts"],
+      "@infordevjournal/auth/feature-auth": ["libs/auth/feature-auth/src/index.ts"],
+      "@infordevjournal/core/api-types": ["libs/core/api-types/src/index.ts"],
+      "@infordevjournal/core/data-access": ["libs/core/data-access/src/index.ts"],
+      "@infordevjournal/core/error-handler": ["libs/core/error-handler/src/index.ts"],
+      "@infordevjournal/core/forms": ["libs/core/forms/src/index.ts"],
+      "@infordevjournal/core/http-client": ["libs/core/http-client/src/index.ts"],
+      "@infordevjournal/profile/data-access": ["libs/profile/data-access/src/index.ts"],
+      "@infordevjournal/profile/feature-profile": ["libs/profile/feature-profile/src/index.ts"],
+      "@infordevjournal/settings/data-access": ["libs/settings/data-access/src/index.ts"],
+      "@infordevjournal/settings/feature-settings": ["libs/settings/feature-settings/src/index.ts"],
+      "@infordevjournal/ui/components": ["libs/ui/components/src/index.ts"]
+    },
+    "strict": true
+  },
+  "exclude": ["node_modules", "tmp"]
+}

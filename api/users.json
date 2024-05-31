@@ -1,0 +1,12 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "email": "user@infor.com",
+            "password": "user@123",
+            "username": "user",
+            "image": "https://ui-avatars.com/api/?name=test&background=random&size=128",
+            "bio": "I am a new hire at the company INFOR"
+        }
+    ]
+}

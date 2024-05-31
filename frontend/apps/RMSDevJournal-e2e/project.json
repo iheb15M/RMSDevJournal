@@ -1,0 +1,27 @@
+{
+  "name": "RMSDevJournal-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/RMSDevJournal-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/RMSDevJournal-e2e/cypress.config.ts",
+        "devServerTarget": "RMSDevJournal:serve",
+        "tsConfig": "apps/RMSDevJournal-e2e/tsconfig.e2e.json",
+        "testingType": "e2e"
+      }
+    },
+    "configurations": {
+      "production": {
+        "devServerTarget": "RMSDevJournal:serve:production"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "prefix": "app"
+}

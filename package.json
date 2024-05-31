@@ -1,0 +1,27 @@
+{
+  "name": "RMSDevJournal",
+  "version": "1.0.0",
+  "description": "technical interview for RMS",
+  "main": "index.js",
+  "scripts": {
+    "install:api": "cd api && npm i",
+    "install:frontend": "cd frontend && npm i",
+    "install:main": "npm i",
+    "install:all": "npm run install:api && npm run install:frontend && npm run install:main",
+    "start:api": "cd api && npm run start",
+    "start:front": "cd frontend && npm run start",
+    "start": "concurrently npm:start:api npm:start:front",
+    "generate:api": "cd api && npm run generate",
+    "socket": "cd api && nodemon socket"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.3.0"
+  },
+  "dependencies": {
+    "@ng-bootstrap/ng-bootstrap": "^16.0.0",
+    "nodemon": "^3.1.2"
+  }
+}
