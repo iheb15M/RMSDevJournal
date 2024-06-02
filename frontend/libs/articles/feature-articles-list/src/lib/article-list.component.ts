@@ -21,6 +21,10 @@ export class ArticleListComponent {
   $listConfig = this.articlesListStore.listConfig;
   $isLoading = this.articlesListStore.getArticlesLoading;
 
+  constructor(){
+    this.articlesListStore.listenForNewArticles();
+  }
+
   favorite(slug: string) {
     this.articlesListStore.favouriteArticle(slug);
   }

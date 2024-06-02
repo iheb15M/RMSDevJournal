@@ -13,6 +13,7 @@ import { setLoaded, setLoading, withCallState } from '@infordevjournal/core/data
 import { tapResponse } from '@ngrx/operators';
 import { ActionsService } from './services/actions.service';
 import { Article } from '@infordevjournal/core/api-types';
+import { SocketService } from './services/socket.service';
 
 export const ArticlesListStore = signalStore(
   { providedIn: 'root' },
@@ -25,7 +26,13 @@ export const ArticlesListStore = signalStore(
       ),
     ),
   })),
-  withMethods((store, articlesService = inject(ArticlesService), actionsService = inject(ActionsService)) => ({
+  withMethods(
+    (
+      store,
+      articlesService = inject(ArticlesService),
+      actionsService = inject(ActionsService),
+      socketService = inject(SocketService)
+    ) => ({
     loadArticles: rxMethod<ArticlesListConfig>(
       pipe(
         tap(() => setLoading('getArticles')),
@@ -45,6 +52,44 @@ export const ArticlesListStore = signalStore(
           ),
         ),
       ),
+    ),
+    listenForNewArticles: rxMethod<void>(
+      pipe(
+        concatMap(() => socketService.onNewArticle().pipe(
+          tapResponse({
+            next: (newArticles: Article[]) => {
+              newArticles.forEach((article: Article) => {
+                articlesService.createArticle({
+                  article: {
+                    title: article.title,
+                    description: article.description,
+                    body: article.body,
+                    tagList: article.tagList,
+                  }
+                }).subscribe(
+                  {
+                    next: (value) => {
+                      patchState(store, {
+                        articles: {
+                          entities: [...store.articles().entities, value.article],
+                          articlesCount: store.articles().articlesCount++,
+                        },
+                        ...setLoaded('getArticles'),
+                      });
+                    },
+                    error: (err) => {
+                      console.error(err);
+                    }
+                  }
+                )
+              });
+            },
+            error: (err) => {
+              console.error(err)
+            }
+          })
+        ))
+      )
     ),
     favouriteArticle: rxMethod<string>(
       pipe(

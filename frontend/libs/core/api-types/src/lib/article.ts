@@ -16,3 +16,12 @@ export interface Article {
 export interface ArticleResponse {
   article: Article;
 }
+
+export interface ArticleRequest {
+  article:{
+    title: string;
+    description: string;
+    body: string;
+    tagList: string[];
+  }
+}

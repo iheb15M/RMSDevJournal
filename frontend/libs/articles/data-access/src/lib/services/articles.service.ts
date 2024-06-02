@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@infordevjournal/core/http-client';
-import { Article, ArticleResponse, MultipleCommentsResponse, SingleCommentResponse } from '@infordevjournal/core/api-types';
+import { Article, ArticleRequest, ArticleResponse, MultipleCommentsResponse, SingleCommentResponse } from '@infordevjournal/core/api-types';
 import { HttpParams } from '@angular/common/http';
 import { ArticlesListConfig } from '../models/articles-list.model';
 
@@ -42,6 +42,10 @@ export class ArticlesService {
       });
     }
     return this.apiService.post<ArticleResponse, ArticleResponse>('/articles/', { article: article });
+  }
+
+  createArticle(article: ArticleRequest): Observable<ArticleResponse>{
+    return this.apiService.post<ArticleResponse, ArticleRequest>('/articles/', article);
   }
 
   // TODO: remove any
