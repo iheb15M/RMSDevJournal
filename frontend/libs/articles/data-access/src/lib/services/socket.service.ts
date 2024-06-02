@@ -24,4 +24,8 @@ export class SocketService {
     return this.onEvent<Article[]>('articles')
   }
 
+  public onNewTag(): Observable<string>{
+    return this.onEvent<string>('tags')
+  }
+
 }
