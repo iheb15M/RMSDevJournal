@@ -28,4 +28,7 @@ export class SocketService {
     return this.onEvent<string>('tags')
   }
 
+  public onLikeUnlike(): Observable<Article>{
+    return this.onEvent<Article>('like-unlike')
+  }
 }

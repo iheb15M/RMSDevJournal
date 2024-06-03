@@ -50,7 +50,6 @@ export class HomeStoreService extends ComponentStore<HomeState> implements OnSta
         this.socketService.onNewTag().subscribe((newTag) => {
           this.homeService.createTag(newTag).subscribe({
             next: (res) => {
-              console.warn('TAGS DB', res);
               this.setState((state) => ({
                 tags: [...state.tags, res.tag]
               }));

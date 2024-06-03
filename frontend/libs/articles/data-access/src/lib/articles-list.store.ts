@@ -33,116 +33,138 @@ export const ArticlesListStore = signalStore(
       actionsService = inject(ActionsService),
       socketService = inject(SocketService)
     ) => ({
-    loadArticles: rxMethod<ArticlesListConfig>(
-      pipe(
-        tap(() => setLoading('getArticles')),
-        concatMap((listConfig) =>
-          articlesService.query(listConfig).pipe(
-            tapResponse({
-              next: ({ articles, articlesCount }) => {
-                patchState(store, {
-                  articles: { articlesCount: articlesCount, entities: articles },
-                  ...setLoaded('getArticles'),
-                });
-              },
-              error: () => {
-                patchState(store, { ...articlesListInitialState, ...setLoaded('getArticles') });
-              },
-            }),
+      loadArticles: rxMethod<ArticlesListConfig>(
+        pipe(
+          tap(() => setLoading('getArticles')),
+          concatMap((listConfig) =>
+            articlesService.query(listConfig).pipe(
+              tapResponse({
+                next: ({ articles, articlesCount }) => {
+                  patchState(store, {
+                    articles: { articlesCount: articlesCount, entities: articles },
+                    ...setLoaded('getArticles'),
+                  });
+                },
+                error: () => {
+                  patchState(store, { ...articlesListInitialState, ...setLoaded('getArticles') });
+                },
+              }),
+            ),
           ),
         ),
       ),
-    ),
-    listenForNewArticles: rxMethod<void>(
-      pipe(
-        concatMap(() => socketService.onNewArticle().pipe(
-          tapResponse({
-            next: (newArticles: Article[]) => {
-              newArticles.forEach((article: Article) => {
-                articlesService.createArticle({
-                  article: {
-                    title: article.title,
-                    description: article.description,
-                    body: article.body,
-                    tagList: article.tagList,
-                  }
-                }).subscribe(
-                  {
-                    next: (value) => {
-                      patchState(store, {
-                        articles: {
-                          entities: [...store.articles().entities, value.article],
-                          articlesCount: store.articles().articlesCount++,
-                        },
-                        ...setLoaded('getArticles'),
-                      });
-                    },
-                    error: (err) => {
-                      console.error(err);
+      listenForNewArticles: rxMethod<void>(
+        pipe(
+          concatMap(() => socketService.onNewArticle().pipe(
+            tapResponse({
+              next: (newArticles: Article[]) => {
+                newArticles.forEach((article: Article) => {
+                  articlesService.createArticle({
+                    article: {
+                      title: article.title,
+                      description: article.description,
+                      body: article.body,
+                      tagList: article.tagList,
                     }
-                  }
-                )
-              });
-            },
-            error: (err) => {
-              console.error(err)
-            }
-          })
-        ))
-      )
-    ),
-    favouriteArticle: rxMethod<string>(
-      pipe(
-        concatMap((slug) =>
-          actionsService.favorite(slug).pipe(
-            tapResponse({
-              next: ({ article }) => {
-                patchState(store, {
-                  articles: replaceArticle(store.articles(), article),
+                  }).subscribe(
+                    {
+                      next: (value) => {
+                        patchState(store, {
+                          articles: {
+                            entities: [...store.articles().entities, value.article],
+                            articlesCount: store.articles().articlesCount++,
+                          },
+                          ...setLoaded('getArticles'),
+                        });
+                      },
+                      error: (err) => {
+                        console.error(err);
+                      }
+                    }
+                  )
                 });
               },
-              error: () => {
-                patchState(store, articlesListInitialState);
+              error: (err) => {
+                console.error(err)
+              }
+            })
+          ))
+        )
+      ),
+      listenForLikeUnlike: rxMethod<void>(
+        pipe(
+          concatMap(() => socketService.onLikeUnlike().pipe(
+            tapResponse({
+              next: (likeArticle: Article) => {
+                const articles = store.articles();
+                const articleIndex = articles.entities.findIndex((a) => a.slug === likeArticle.slug);
+                if (articleIndex !== -1) {
+                  articles.entities[articleIndex] = likeArticle;
+                  patchState(store, { articles });
+                } else {
+                  console.error('Liked/Unliked Article not found');
+                }
               },
-            }),
+              error: (err) => {
+                console.error(err);
+              }
+            })
+          ))
+        )
+      ),
+
+      favouriteArticle: rxMethod<string>(
+        pipe(
+          concatMap((slug) =>
+            actionsService.favorite(slug).pipe(
+              tapResponse({
+                next: ({ article }) => {
+                  patchState(store, {
+                    articles: replaceArticle(store.articles(), article),
+                  });
+                },
+                error: () => {
+                  patchState(store, articlesListInitialState);
+                },
+              }),
+            ),
           ),
         ),
       ),
-    ),
-    unFavouriteArticle: rxMethod<string>(
-      pipe(
-        concatMap((slug) =>
-          actionsService.unfavorite(slug).pipe(
-            tapResponse({
-              next: ({ article }) => {
-                patchState(store, {
-                  articles: replaceArticle(store.articles(), article),
-                });
-              },
-              error: () => {
-                patchState(store, articlesListInitialState);
-              },
-            }),
+      unFavouriteArticle: rxMethod<string>(
+        pipe(
+          concatMap((slug) =>
+            actionsService.unfavorite(slug).pipe(
+              tapResponse({
+                next: ({ article }) => {
+                  patchState(store, {
+                    articles: replaceArticle(store.articles(), article),
+                  });
+                },
+                error: () => {
+                  patchState(store, articlesListInitialState);
+                },
+              }),
+            ),
           ),
         ),
       ),
-    ),
-    setListConfig: (listConfig: ArticlesListConfig) => {
-      patchState(store, { listConfig });
-    },
-    setListPage: (page: number) => {
-      const filters = {
-        ...store.listConfig.filters(),
-        offset: (store.listConfig().filters.limit ?? 10) * (page - 1),
-      };
-      const listConfig: ArticlesListConfig = {
-        ...store.listConfig(),
-        currentPage: page,
-        filters,
-      };
-      patchState(store, { listConfig });
-    },
-  })),
+      setListConfig: (listConfig: ArticlesListConfig) => {
+        patchState(store, { listConfig });
+      },
+      setListPage: (page: number) => {
+        const filters = {
+          ...store.listConfig.filters(),
+          offset: (store.listConfig().filters.limit ?? 10) * (page - 1),
+        };
+        const listConfig: ArticlesListConfig = {
+          ...store.listConfig(),
+          currentPage: page,
+          filters,
+        };
+        patchState(store, { listConfig });
+      },
+    })),
   withCallState({ collection: 'getArticles' }),
 );
 
