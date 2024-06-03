@@ -14,6 +14,9 @@ import { tapResponse } from '@ngrx/operators';
 import { ActionsService } from './services/actions.service';
 import { Article } from '@infordevjournal/core/api-types';
 import { SocketService } from './services/socket.service';
+import { NotificationStore } from '@infordevjournal/notifications/src/lib/notifications.store';
+
+const notificationStore = inject(NotificationStore);
 
 export const ArticlesListStore = signalStore(
   { providedIn: 'root' },
@@ -31,7 +34,7 @@ export const ArticlesListStore = signalStore(
       store,
       articlesService = inject(ArticlesService),
       actionsService = inject(ActionsService),
-      socketService = inject(SocketService)
+      socketService = inject(SocketService),
     ) => ({
       loadArticles: rxMethod<ArticlesListConfig>(
         pipe(
@@ -76,6 +79,7 @@ export const ArticlesListStore = signalStore(
                           },
                           ...setLoaded('getArticles'),
                         });
+                        notificationStore.pushArticleNotification(value.article);
                       },
                       error: (err) => {
                         console.error(err);
@@ -104,6 +108,7 @@ export const ArticlesListStore = signalStore(
                 } else {
                   console.error('Liked/Unliked Article not found');
                 }
+                notificationStore.pushLikeUnlikeNotification(likeArticle)
               },
               error: (err) => {
                 console.error(err);

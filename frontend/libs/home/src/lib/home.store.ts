@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ComponentStore, OnStateInit, tapResponse } from '@ngrx/component-store';
 import { pipe } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { HomeService } from './home.service';
 import { SocketService } from '@infordevjournal/articles/data-access/src/lib/services/socket.service';
+import { NotificationStore } from '@infordevjournal/notifications/src/lib/notifications.store';
 
 export interface HomeState {
   tags: string[];
@@ -11,9 +12,12 @@ export interface HomeState {
 
 @Injectable()
 export class HomeStoreService extends ComponentStore<HomeState> implements OnStateInit {
+
+  private readonly notificationStore = inject(NotificationStore);
+
   constructor(
     private readonly homeService: HomeService,
-    private readonly socketService: SocketService
+    private readonly socketService: SocketService,
   ) {
     super({ tags: [] });
   }
@@ -50,6 +54,7 @@ export class HomeStoreService extends ComponentStore<HomeState> implements OnSta
         this.socketService.onNewTag().subscribe((newTag) => {
           this.homeService.createTag(newTag).subscribe({
             next: (res) => {
+              this.notificationStore.pushTagNotification(res.tag);
               this.setState((state) => ({
                 tags: [...state.tags, res.tag]
               }));
